@@ -13,6 +13,7 @@ nim = NIM.getInstance({
   appKey: "YOUR_APPKEY",
   account: "YOUR_ACCOUNT",
   token: "YOUR_TOKEN",
+  //初始化阶段，同步置顶会话数据
   syncStickTopSessions: true,
   //初始化阶段，接收所有的sessions
   onsessions: onsessions,
