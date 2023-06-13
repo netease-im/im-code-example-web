@@ -34,7 +34,7 @@ class SessionList extends React.Component {
 
     return (
       <div>
-        <Card avatar={avatar} name={name} />
+        <SessionCard avatar={avatar} name={name} />
       </div>
     );
   }

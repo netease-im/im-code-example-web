@@ -24,7 +24,7 @@ nim = NIM.getInstance({
 /**
  * 收到 p2p 消息后触发 onupdateuser，参数为另一个用户的个人信息。
  *
- * 注意，不是每次 p2p 消息都会收到，收到仅限于：
+ * 注意，不是每次 p2p 消息都会触发此回调，触发场景仅限于：
  * - 在线后，第一次收到另一用户的消息
  * - 另一用户更新个人信息后，再次发送消息
  */
@@ -33,13 +33,15 @@ function onupdateuser(user) {
 }
 
 /**
- * 群信息更新
+ * 群信息更新。该回调函数的 team 仅包含更新的内容，所以要和已有的信息合并。
  */
 function onUpdateTeam(team) {
   const tId = team.teamId;
   if (!store.nim.teams[tId]) {
-    updateTeamInfo(tId);
+    // 本地不存在该群的信息
+    fetchTeamInfo(tId);
   } else {
+    // 更新信息和已有信息合并
     store.nim.teams[tId] = {
       ...store.nim.teams[tId],
       ...team,
@@ -48,13 +50,15 @@ function onUpdateTeam(team) {
 }
 
 /**
- * 超级群消息更新
+ * 超级群消息更新。该回调函数的 team 仅包含更新的内容，所以要和已有的信息合并。
  */
 function onUpdateSuperTeam(team) {
   const tId = team.teamId;
   if (!store.nim.superTeams[tId]) {
-    updateSuperTeamInfo(tId);
+    // 本地不存在该群的信息
+    fetchSuperTeamInfo(tId);
   } else {
+    // 更新信息和已有信息合并
     store.nim.superTeams[tId] = {
       ...store.nim.superTeams[tId],
       ...team,
@@ -102,20 +106,22 @@ function onSuperTeams(teams) {
 /**
  * 更新会话基本信息：头像、名称等
  *
- * 调用时机：onsessions, onupdatesessions 回调函数中
+ * 注意，该函数不是 NIM.getInstance 的回调函数。该函数应该在 onsessions, onupdatesessions 之后调用。
+ * 
+ * 它的作用是在会话有更新后，根据会话的类型(p2p, team, superTeam)，拉取会话的基本信息（头像、昵称）
  */
 function updateSessionInfo(session) {
   if (session.scene === "p2p") {
     if (!store.nim.users[session.to]) {
-      updateUserInfo(session.to);
+      fetchUserInfo(session.to);
     }
   } else if (session.scene === "team") {
     if (!store.nim.teams[session.to]) {
-      updateTeamInfo(session.to);
+      fetchTeamInfo(session.to);
     }
   } else if (session.scene === "superTeam") {
     if (!store.nim.superTeams[session.to]) {
-      updateSuperTeamInfo(session.to);
+      fetchSuperTeamInfo(session.to);
     }
   }
 }
@@ -123,7 +129,7 @@ function updateSessionInfo(session) {
 /**
  * 获取 p2p 会话对应的 user 信息。
  */
-function updateUserInfo(account) {
+function fetchUserInfo(account) {
   nim.getUser({
     account,
     sync: true,
@@ -140,7 +146,7 @@ function updateUserInfo(account) {
 /**
  * 获取群会话对应的 team 信息。
  */
-function updateTeamInfo(teamId) {
+function fetchTeamInfo(teamId) {
   nim.getTeam({
     teamId,
     sync: true,
@@ -157,7 +163,7 @@ function updateTeamInfo(teamId) {
 /**
  * 获取超级群会话对应的 superTeam 信息。
  */
-function updateSuperTeamInfo(teamId) {
+function fetchSuperTeamInfo(teamId) {
   nim.getSuperTeam({
     teamId,
     sync: true,
