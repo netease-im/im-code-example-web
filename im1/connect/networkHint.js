@@ -1,8 +1,12 @@
-import NIM from "@yxim/nim-web-sdk/dist/SDK/NIM_Web_NIM.js";
+/**
+ * 通过 NIM 的 onconnect, onwillreconnect, ondisconnect 等事件，得到当前 NIM 实例的连接状态，并根据连接状态，设置相应的 UI 提示。
+ */
+
+
 /**
  * 你的数据存放文件。更新数据后，记得要更新 UI
  */
-import store from "./your_store_file";
+import store from "../store"
 
 NIM.getInstance({
   appKey: "YOUR_APPKEY",

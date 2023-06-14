@@ -17,15 +17,7 @@
  */
 
 
-/**
- * 你的数据存放文件。更新数据后，记得要更新 UI
- */
-const store = {}
-
-// 所有会话
-// key: 会话的id
-// value: 会话
-store.sessions = store.sessions || {}
+import store from '../store'
 
 nim = NIM.getInstance({
   appKey: "YOUR_APPKEY",
@@ -49,9 +41,9 @@ nim = NIM.getInstance({
  */
 function onsessions(sessionArr) {
   for (const session of sessionArr) {
-    store.sessions[session.id] = session
+    store.sessionMap[session.id] = session
   }
-  store.orderedSessions = getOrderedSessions(store.sessions)
+  store.orderedSessions = getOrderedSessions(store.sessionMap)
 }
 
 /**
@@ -62,13 +54,13 @@ function onStickTopSessions(sessionArr) {
     /**
      * TODO: 这里有些问题哦，如果onsessions同步的会话不全的话，初始化时都没办法同步干净了。
      */
-    store.sessions[session.id] = store.sessions[session.id] || {}
-    store.sessions[session.id] = {
-      ...store.sessions[session.id],
+    store.sessionMap[session.id] = store.sessionMap[session.id] || {}
+    store.sessionMap[session.id] = {
+      ...store.sessionMap[session.id],
       ...session
     }
   }
-  store.orderedSessions = getOrderedSessions(store.sessions)
+  store.orderedSessions = getOrderedSessions(store.sessionMap)
 }
 
 /**
@@ -76,9 +68,9 @@ function onStickTopSessions(sessionArr) {
  */
 function onupdatesessions(sessionArr) {
   for (let session of sessionArr) {
-    store.sessions[session.id] = session
+    store.sessionMap[session.id] = session
   }
-  store.orderedSessions = getOrderedSessions(store.sessions)
+  store.orderedSessions = getOrderedSessions(store.sessionMap)
 }
 
 // 对会话排序

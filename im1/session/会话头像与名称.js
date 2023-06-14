@@ -6,11 +6,8 @@
  * - superTeam 超级群与群一样，来自于群的固有信息
  * 
  */
-const store = {
-  users: {},
-  teams: {},
-  superTeams: {}
-}
+import store from '../store'
+
 
 nim = NIM.getInstance({
   appKey: "YOUR_APPKEY",
