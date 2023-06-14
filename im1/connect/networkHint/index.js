@@ -8,6 +8,7 @@ NIM.getInstance({
   appKey: "YOUR_APPKEY",
   account: "YOUR_ACCOUNT",
   token: "YOUR_TOKEN",
+  debug: true,
   /**
    * 开启快速重连。根据浏览器的 online, offline 事件嗅探网络状态，并在网络恢复时快速重连
    */

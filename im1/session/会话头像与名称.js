@@ -1,13 +1,22 @@
-import NIM from "@yxim/nim-web-sdk/dist/SDK/NIM_Web_NIM.js";
 /**
- * 你的数据存放文件。更新数据后，记得要更新 UI
+ * 如何获取会话的头像以及名称。
+ *
+ * - p2p 会话的头像与名称来自于会话的另一个用户
+ * - team 群组的头像与名称来自于群组的固有信息
+ * - superTeam 超级群与群一样，来自于群的固有信息
+ * 
  */
-import store from "./your_store_file";
+const store = {
+  users: {},
+  teams: {},
+  superTeams: {}
+}
 
 nim = NIM.getInstance({
   appKey: "YOUR_APPKEY",
   account: "YOUR_ACCOUNT",
   token: "YOUR_TOKEN",
+  debug: true,
   onupdateuser: onupdateuser,
   onUpdateTeam: onUpdateTeam,
   onUpdateSuperTeam: onUpdateSuperTeam,
@@ -17,8 +26,8 @@ nim = NIM.getInstance({
   /**
    * 注意，会话更新时，需要拉取会话的基本信息。
    */
-  // onsessions: onsessions,
-  // onupdatesessions: onupdatesessions,
+  onsessions: onsessions,
+  onupdatesessions: onupdatesessions,
 });
 
 /**
@@ -29,7 +38,7 @@ nim = NIM.getInstance({
  * - 另一用户更新个人信息后，再次发送消息
  */
 function onupdateuser(user) {
-  store.nim.users[user.account] = user;
+  store.users[user.account] = user;
 }
 
 /**
@@ -37,13 +46,13 @@ function onupdateuser(user) {
  */
 function onUpdateTeam(team) {
   const tId = team.teamId;
-  if (!store.nim.teams[tId]) {
+  if (!store.teams[tId]) {
     // 本地不存在该群的信息
     fetchTeamInfo(tId);
   } else {
     // 更新信息和已有信息合并
-    store.nim.teams[tId] = {
-      ...store.nim.teams[tId],
+    store.teams[tId] = {
+      ...store.teams[tId],
       ...team,
     };
   }
@@ -54,13 +63,13 @@ function onUpdateTeam(team) {
  */
 function onUpdateSuperTeam(team) {
   const tId = team.teamId;
-  if (!store.nim.superTeams[tId]) {
+  if (!store.superTeams[tId]) {
     // 本地不存在该群的信息
     fetchSuperTeamInfo(tId);
   } else {
     // 更新信息和已有信息合并
-    store.nim.superTeams[tId] = {
-      ...store.nim.superTeams[tId],
+    store.superTeams[tId] = {
+      ...store.superTeams[tId],
       ...team,
     };
   }
@@ -75,7 +84,7 @@ function onUpdateSuperTeam(team) {
  */
 function onusers(users) {
   for (const user of users) {
-    store.nim.users[user.account] = user;
+    store.users[user.account] = user;
   }
 }
 
@@ -87,7 +96,7 @@ function onusers(users) {
  */
 function onteams(teams) {
   for (const t of teams) {
-    store.nim.teams[t.teamId] = t;
+    store.teams[t.teamId] = t;
   }
 }
 
@@ -99,7 +108,38 @@ function onteams(teams) {
  */
 function onSuperTeams(teams) {
   for (const t of teams) {
-    store.nim.superTeams[t.teamId] = t;
+    store.superTeams[t.teamId] = t;
+  }
+}
+
+/**
+ * 初始化同步获取会话列表后，更新会话对应的用户信息
+ * 
+ * 注意，这个回调其它的作用，比如会话列表的生成，会话列表的排序请参考其他的示例代码。这段代码仅展示如何获取会话的基本信息
+ */
+function onsessions(sessions) {
+  /**
+   * 参考【会话排序.js】。这里应该先排序，再获取会话的用户信息
+   */
+
+  /**
+   * 获取用户信息。稍微间隔一些获取用户信息，减少初始化时期的页面加载压力
+   */
+  for (let i = 0; i < sessions.length; i++) {
+    setTimeout(() => {
+      updateSessionInfo(sessions[i])
+    }, i * 100)
+  }
+}
+
+/**
+ * 每次更新 session 时，如果会话的基本信息不存在，可以去主动拉取
+ * 
+ * 注意，这个回调其它的作用，比如会话列表的生成，会话列表的排序请参考其他的示例代码。这段代码仅展示如何获取会话的基本信息
+ */
+function onupdatesessions(sessions) {
+  for (const session of sessions) {
+    updateSessionInfo(session)
   }
 }
 
@@ -112,15 +152,15 @@ function onSuperTeams(teams) {
  */
 function updateSessionInfo(session) {
   if (session.scene === "p2p") {
-    if (!store.nim.users[session.to]) {
+    if (!store.users[session.to]) {
       fetchUserInfo(session.to);
     }
   } else if (session.scene === "team") {
-    if (!store.nim.teams[session.to]) {
+    if (!store.teams[session.to]) {
       fetchTeamInfo(session.to);
     }
   } else if (session.scene === "superTeam") {
-    if (!store.nim.superTeams[session.to]) {
+    if (!store.superTeams[session.to]) {
       fetchSuperTeamInfo(session.to);
     }
   }
@@ -137,7 +177,7 @@ function fetchUserInfo(account) {
       if (err) {
         console.error("获取用户信息失败", err);
       } else {
-        store.nim.users[user.account] = user;
+        store.users[user.account] = user;
       }
     },
   });
@@ -154,7 +194,7 @@ function fetchTeamInfo(teamId) {
       if (err) {
         console.error("获取群信息失败", err);
       } else {
-        store.nim.teams[team.teamId] = team;
+        store.teams[team.teamId] = team;
       }
     },
   });
@@ -171,8 +211,52 @@ function fetchSuperTeamInfo(teamId) {
       if (err) {
         console.error("获取超级群信息失败", err);
       } else {
-        store.nim.superTeams[team.teamId] = team;
+        store.superTeams[team.teamId] = team;
       }
     },
   });
+}
+
+
+
+/**
+ * 下面使用 React 的语法简单示意一下如何根据 store 中的信息绘制会话的基本信息
+ */
+
+class SessionList extends React.Component {
+  render() {
+    return store.orderedSessions.map((session) => {
+      return <div key={session.id}>{this.renderSession(session)}</div>;
+    });
+  }
+
+  renderSession(session) {
+    let name;
+    let avatar;
+    switch (session.scene) {
+      case "p2p":
+        const user = store.users[session.to];
+        name = user.nick || user.account;
+        avatar = user.avatar || "default_image_url";
+        break;
+      case "team":
+        const team = store.teams[session.to];
+        team = team.name;
+        avatar = team.avatar || "default_image_url";
+        break;
+      case "superTeam":
+        const superTeam = store.superTeams[session.to];
+        name = superTeam.name;
+        avatar = superTeam.avatar || "default_image_url";
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <div>
+        <SessionCard avatar={avatar} name={name} />
+      </div>
+    );
+  }
 }
