@@ -1,9 +1,4 @@
-// key: sessionId
-// value.msgArr: 已经拉取到内存中的会话的消息列表，最新的消息在队列头部
-// value.fetching: 是否上次调用getHistoryMsgs的结果还未返回
-// value.complete: 是否已经加载完了
-// 该变量也可以根据同步阶段的回调函数，比如onroamingmsgs, onofflinemsgs填充
-const msgArrBySessionId = {}
+import store from '../store'
 
 nim = NIM.getInstance({
     "lbsUrl": "https://imtest.netease.im/lbs/webconf",
@@ -21,14 +16,13 @@ nim = NIM.getInstance({
 })
 
 function onmsg(data) {
-    debugger
     const sessionId = data.sessionId
-    msgArrBySessionId[sessionId] = msgArrBySessionId[sessionId] || {
+    store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {
         msgArr: [],
         fetching: false,
         complete: false
     }
-    msgArrBySessionId[sessionId].msgArr.unshift(data)
+    store.sessionMsgs[sessionId].msgArr.unshift(data)
 }
 
 /**
@@ -36,16 +30,16 @@ function onmsg(data) {
  */
 function onroamingmsgs(data) {
     const sessionId = data.sessionId
-    msgArrBySessionId[sessionId] = msgArrBySessionId[sessionId] || {
+    store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {
         msgArr: [],
         fetching: false,
         complete: false
     }
-    msgArrBySessionId[sessionId].msgArr = msgArrBySessionId[sessionId].msgArr.concat(data.msgs)
+    store.sessionMsgs[sessionId].msgArr = store.sessionMsgs[sessionId].msgArr.concat(data.msgs)
     /**
      * 最新的消息放在队列头部
      */
-    msgArrBySessionId[sessionId].msgArr.sort((a, b) => {
+    store.sessionMsgs[sessionId].msgArr.sort((a, b) => {
         return b.time - a.time
     })
 }
@@ -55,16 +49,16 @@ function onroamingmsgs(data) {
  */
 function onofflinemsgs(data) {
     const sessionId = data.sessionId
-    msgArrBySessionId[sessionId] = msgArrBySessionId[sessionId] || {
+    store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {
         msgArr: [],
         fetching: false,
         complete: false
     }
-    msgArrBySessionId[sessionId].msgArr = msgArrBySessionId[sessionId].msgArr.concat(data.msgs)
+    store.sessionMsgs[sessionId].msgArr = store.sessionMsgs[sessionId].msgArr.concat(data.msgs)
     /**
      * 最新的消息放在队列头部
      */
-    msgArrBySessionId[sessionId].msgArr.sort((a, b) => {
+    store.sessionMsgs[sessionId].msgArr.sort((a, b) => {
         return b.time - a.time
     })
 }
@@ -73,17 +67,17 @@ function onofflinemsgs(data) {
 //拉取会话的消息。适合分页一直往上拉历史消息，每次拉limit条数的消息
 function loadMoreMsgOfSession(scene, to, limit) {
     const sessionId = `${scene}-${to}`
-    msgArrBySessionId[sessionId] = msgArrBySessionId[sessionId] || {
+    store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {
         msgArr: [],
         fetching: false,
         complete: false
     }
 
-    if (msgArrBySessionId[sessionId].complete) {
+    if (store.sessionMsgs[sessionId].complete) {
         return
     }
 
-    const msgArr = msgArrBySessionId[sessionId].msgArr
+    const msgArr = store.sessionMsgs[sessionId].msgArr
     const lastMsg = msgArr[msgArr.length - 1]
 
     const params = {
@@ -98,25 +92,25 @@ function loadMoreMsgOfSession(scene, to, limit) {
         reverse: false,
         done: function (err, data) {
             //结束调用，设置fetching = false
-            msgArrBySessionId[sessionId].fetching = false
+            store.sessionMsgs[sessionId].fetching = false
 
             if (err) {
                 console.error('loadMoreMsgOfSession Error: ', err)
             } else if (data && data.msgs && data.msgs.length > 0) {
-                msgArrBySessionId[sessionId].msgArr = msgArr.concat(data.msgs)
+                store.sessionMsgs[sessionId].msgArr = msgArr.concat(data.msgs)
 
                 /**
                  * 拉取的消息长度 < 分页长度，因此 complete = true
                  */
                 if (data.msgs.length < limit) {
-                    msgArrBySessionId[sessionId].complete = true
+                    store.sessionMsgs[sessionId].complete = true
                 }
             } else {
-                msgArrBySessionId[sessionId].complete = true
+                store.sessionMsgs[sessionId].complete = true
                 console.log('loadMoreMsgOfSession 已拉取会话所有消息')
             }
 
-            console.log(`当前会话: ${sessionId} 的历史消息为`, msgArrBySessionId[sessionId])
+            console.log(`当前会话: ${sessionId} 的历史消息为`, store.sessionMsgs[sessionId])
         }
     }
 
@@ -124,6 +118,6 @@ function loadMoreMsgOfSession(scene, to, limit) {
         params.lasntMsgId = lastMsg.idServer
     }
 
-    msgArrBySessionId[sessionId].fetching = true
+    store.sessionMsgs[sessionId].fetching = true
     nim.getHistoryMsgs(params)
 }

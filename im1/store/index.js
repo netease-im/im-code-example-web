@@ -34,7 +34,9 @@ const store = {
     /**
      * 超级群信息
      */
-    superTeams: {}
+    superTeams: {},
+    friends: {},
+    friendsOnlineStatus: {}
 }
 
 export default store
