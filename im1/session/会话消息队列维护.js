@@ -1,13 +1,18 @@
+/**
+ * 1. 初始化阶段，通过 onroamingmsgs, onofflinemsgs 构建会话的消息列表。
+ * 2. 用户发送消息时，在回调函数中将消息加入列表。收到消息时，通过 onmsg 将消息加入消息列表。
+ * 3. 撤回消息，或者删除消息对消息列表的影响请参考 message 文件夹下对应的示例代码
+ * 4. 用户向上加载会话内容时，通过 loadMoreMsgOfSession 将更多的消息加载到消息列表中
+ */
+
 import store from '../store'
 
 nim = NIM.getInstance({
-    "lbsUrl": "https://imtest.netease.im/lbs/webconf",
-    "defaultLink": "imtest-jd.netease.im:8443",
+    appKey: "YOUR_APPKEY",
+    account: "YOUR_ACCOUNT",
+    token: "YOUR_TOKEN",
     "db": false,
     "debug": true,
-    "appKey": "fe416640c8e8a72734219e1847ad2547",
-    "account": "zk4",
-    "token": "e10adc3949ba59abbe56e057f20f883e",
     //初始化阶段，接收所有的sessions
     onofflinemsgs: onofflinemsgs,
     //初始化阶段，接收到置顶会话列表
@@ -15,7 +20,32 @@ nim = NIM.getInstance({
     onmsg: onmsg
 })
 
-function onmsg(data) {
+/**
+ * 发送消息时，将消息加入队列中
+ * 
+ * 注意，这里仅展示发送文本消息。其他类型的消息也是同样的处理
+ */
+function sendText(scene, to, text) {
+    nim.sendText({
+        scene,
+        to,
+        text,
+        done: function (err, data) {
+            if (!err) {
+                addMsgToMsgArr(data)
+            }
+        }
+    })
+}
+
+/**
+ * 收到消息后，将消息压入消息队列头部
+ */
+function onmsg(msg) {
+    addMsgToMsgArr(msg)
+}
+
+function addMsgToMsgArr(data) {
     const sessionId = data.sessionId
     store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {
         msgArr: [],
@@ -63,8 +93,9 @@ function onofflinemsgs(data) {
     })
 }
 
-
-//拉取会话的消息。适合分页一直往上拉历史消息，每次拉limit条数的消息
+/**
+ * 用户向上加载会话列表时，通过该函数拉取更多消息
+ */
 function loadMoreMsgOfSession(scene, to, limit) {
     const sessionId = `${scene}-${to}`
     store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {

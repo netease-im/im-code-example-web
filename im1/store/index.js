@@ -32,11 +32,28 @@ const store = {
      */
     teams: {},
     /**
+     * 我在各个群内的信息。比如自己是否设置了该群免打扰，是否为群主等等
+     */
+    myTeamInfos: {},
+    /**
+     * 群成员信息
+     */
+    teamMembers: {},
+    /**
      * 超级群信息
      */
     superTeams: {},
+    /**
+     * 我在各个超级群内的信息。比如自己是否设置了该群免打扰，是否为群主等等
+     */
+    mySuperTeamInfos: {},
+    /**
+     * 超级群成员信息
+     */
+    superTeamMembers: {},
     friends: {},
-    friendsOnlineStatus: {}
+    friendsOnlineStatus: {},
+    muteList: []
 }
 
 export default store
