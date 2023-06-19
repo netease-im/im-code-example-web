@@ -31,6 +31,9 @@ nim = NIM.getInstance({
     onMySuperTeamMembers: onMySuperTeamMembers
 })
 
+
+//======================================== 单聊免打扰 ====================================//
+
 /**
  * 初始化时收到静音列表
  */
@@ -94,8 +97,7 @@ function removeFromMuteList(account) {
 }
 
 
-//======================================== 上面是单聊免打扰 ====================================//
-//======================================== 下面是群聊免打扰 ====================================//
+//======================================== 群聊免打扰 ====================================//
 
 
 function updateInfoInTeam(muteNotiType, teamId) {
@@ -109,7 +111,7 @@ function updateInfoInTeam(muteNotiType, teamId) {
         teamId: teamId,
         done: function (err, data) {
             if (!err) {
-                const myTeamInfo = store.myTeamInfos[teamId]
+                const myTeamInfo = store.myInfoInEachTeam[teamId]
                 /**
                  * 设置免打扰模式
                  * 
@@ -123,9 +125,12 @@ function updateInfoInTeam(muteNotiType, teamId) {
     })
 }
 
+/**
+ * 初始化、多端同步自己在各个群中的设置。根据 store.myInfoInEachTeam[teamId].muteNotiType 判断当前用户是否对 teamId 开启免打扰
+ */
 function onMyTeamMembers(data) {
     for (const member of data) {
-        store.myTeamInfos[member.teamId] = member
+        store.myInfoInEachTeam[member.teamId] = member
 
         const teamMembers = store.teamMembers[member.teamId]
         if (teamMembers) {
@@ -138,9 +143,12 @@ function onMyTeamMembers(data) {
     }
 }
 
+/**
+ * 初始化、多端同步自己在各个群中的设置。根据 store.myInfoInEachSuperTeam[teamId].muteNotiType 判断当前用户是否对 teamId 开启免打扰
+ */
 function onMySuperTeamMembers(data) {
     for (const member of data) {
-        store.mySuperTeamInfos[member.teamId] = member
+        store.myInfoInEachSuperTeam[member.teamId] = member
 
         const superTeamMembers = store.superTeamMembers[member.teamId]
         if (superTeamMembers) {

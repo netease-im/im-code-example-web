@@ -26,15 +26,19 @@ const store = {
     /**
      * 用户信息
      */
-    users: {},
+    userProfiles: {},
     /**
      * 群组信息
      */
     teams: {},
     /**
+     * 我的个人资料
+     */
+    myProfile: {},
+    /**
      * 我在各个群内的信息。比如自己是否设置了该群免打扰，是否为群主等等
      */
-    myTeamInfos: {},
+    myInfoInEachTeam: {},
     /**
      * 群成员信息
      */
@@ -46,12 +50,12 @@ const store = {
     /**
      * 我在各个超级群内的信息。比如自己是否设置了该群免打扰，是否为群主等等
      */
-    mySuperTeamInfos: {},
+    myInfoInEachSuperTeam: {},
     /**
      * 超级群成员信息
      */
     superTeamMembers: {},
-    friends: {},
+    friendArr: [],
     friendsOnlineStatus: {},
     muteList: []
 }

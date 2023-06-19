@@ -35,7 +35,7 @@ nim = NIM.getInstance({
  * - 另一用户更新个人信息后，再次发送消息
  */
 function onupdateuser(user) {
-  store.users[user.account] = user;
+  store.userProfiles[user.account] = user;
 }
 
 /**
@@ -81,7 +81,7 @@ function onUpdateSuperTeam(team) {
  */
 function onusers(users) {
   for (const user of users) {
-    store.users[user.account] = user;
+    store.userProfiles[user.account] = user;
   }
 }
 
@@ -149,7 +149,7 @@ function onupdatesessions(sessions) {
  */
 function updateSessionInfo(session) {
   if (session.scene === "p2p") {
-    if (!store.users[session.to]) {
+    if (!store.userProfiles[session.to]) {
       fetchUserInfo(session.to);
     }
   } else if (session.scene === "team") {
@@ -174,7 +174,7 @@ function fetchUserInfo(account) {
       if (err) {
         console.error("获取用户信息失败", err);
       } else {
-        store.users[user.account] = user;
+        store.userProfiles[user.account] = user;
       }
     },
   });
@@ -232,7 +232,7 @@ class SessionList extends React.Component {
     let avatar;
     switch (session.scene) {
       case "p2p":
-        const user = store.users[session.to];
+        const user = store.userProfiles[session.to];
         name = user.nick || user.account;
         avatar = user.avatar || "default_image_url";
         break;
