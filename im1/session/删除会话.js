@@ -41,7 +41,7 @@ function deleteSession(session, isSyncSelf) {
                 console.error('从服务端删除漫游消息失败')
             } else {
                 /**
-                 * 将会话从 SDK 维护的数据库和内存中删除
+                 * 将会话从 SDK 维护的数据库和内存中删除。
                  */
                 nim.deleteLocalSession({
                     id: id,
@@ -49,8 +49,25 @@ function deleteSession(session, isSyncSelf) {
                     done: function (err, data) {
                         if (err) {
                             console.error('删除本地会话失败')
-                        } else {
-                            removeSessionFromStore(session.id)
+                        }
+                    }
+                })
+
+                /**
+                 * 从 store 中，将会话相关记录删除
+                 */
+                removeSessionFromStore(session.id)
+
+                /**
+                 * 从 数据库中，将该会话有关系的消息记录全部删除
+                 */
+                nim.deleteLocalMsgsBySession({
+                    delLastMsg: true,
+                    scene: scene,
+                    to: to,
+                    done: function (err) {
+                        if (err) {
+                            console.error('删除本地会话的消息记录失败')
                         }
                     }
                 })

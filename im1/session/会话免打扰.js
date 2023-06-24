@@ -131,15 +131,6 @@ function updateInfoInTeam(muteNotiType, teamId) {
 function onMyTeamMembers(data) {
     for (const member of data) {
         store.myInfoInEachTeam[member.teamId] = member
-
-        const teamMembers = store.teamMembers[member.teamId]
-        if (teamMembers) {
-            for (let i = 0; i < teamMembers.length; i++) {
-                if (teamMembers[i].account === member.account) {
-                    teamMembers[i] = member
-                }
-            }
-        }
     }
 }
 

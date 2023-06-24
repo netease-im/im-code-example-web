@@ -41,6 +41,10 @@ const store = {
     myInfoInEachTeam: {},
     /**
      * 群成员信息
+     * key: teamId
+     * value: 
+     *  value.key: accid
+     *  value.value: 用户信息
      */
     teamMembers: {},
     /**
