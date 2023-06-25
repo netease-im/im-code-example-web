@@ -61,7 +61,22 @@ const store = {
     superTeamMembers: {},
     friendArr: [],
     friendsOnlineStatus: {},
-    muteList: []
+    muteList: [],
+    /**
+     * key: `${msg.from}-${msgCommonType}-${msg.to}`
+     * msgCommonType: 好友相关的系统通知的 msgCommonType 为 friendRequest。其它系统通知的 msgCommonType 为 msg.type
+     * 
+     * 这样设计是为了让好友相关的系统通知能够覆盖，既新的好友相关系统通知覆盖旧的。仔细想想，不难发现，这几种类型的好友相关系统通知仅需要显示任一种的最后一个就行。
+     * 
+     * 而team相关的系统通知：
+     * - applyTeam: 仅群内管理员能收到
+     * - rejectTeamInvite: 仅群内管理员收到。可能存在场景，A拒绝了管理员的群邀请，但是之前又发送了 群申请，此时应该不覆盖。因此，applyTeam 和 rejectTeamInvite 不需要相互覆盖
+     * - teamInvite: 仅群外成员收到
+     * - rejectTeamApply: 仅群外成员收到。可能存在场景，比如 管理员拒绝了 A 的群申请，但是另有管理员发送 A 群邀请，因此 teamInvite 和 rejectTeamApply 不需要相互覆盖
+     * 
+     * 综上，群相关的系统通知无需覆盖处理
+     */
+    sysmsg: {}
 }
 
 export default store

@@ -35,10 +35,6 @@ nim = NIM.getInstance({
     onSyncFriendAction: onSyncFriendAction
 })
 
-function onfriends(data) {
-    debugger
-}
-
 /**
  * 初始化阶段收到好友用户资料的回调函数
  */
@@ -62,7 +58,7 @@ function updateFriend(account, alias) {
     nim.updateFriend({
         account,
         alias,
-        done: function(err, data) {
+        done: function (err, data) {
             if (!err) {
                 store.userProfiles[account].alias = alias
             }
@@ -76,7 +72,7 @@ function updateFriend(account, alias) {
 function addFriend(account) {
     nim.addFriend({
         account,
-        done: function(err, data) {
+        done: function (err, data) {
             if (!err) {
                 store.userProfiles[data.account] = data.friend
                 if (!store.friendArr.includes(data.account)) {
@@ -93,7 +89,7 @@ function addFriend(account) {
 function deleteFriend(account) {
     nim.deleteFriend({
         account,
-        done: function(err, data) {
+        done: function (err, data) {
             if (!err) {
                 const idx = store.friendArr.indexOf(account)
                 if (idx !== -1) {
@@ -113,7 +109,7 @@ function passFriendApply(account, idServer) {
         account: account,
         ps: "",
         idServer: idServer,
-        done: function(err, data) {
+        done: function (err, data) {
             if (!err) {
                 store.userProfiles[data.account] = data.friend
                 if (!store.friendArr.includes(data.account)) {
@@ -131,7 +127,7 @@ function onSyncFriendAction(options) {
     const friend = options.friend
     const account = options.account
 
-    switch(options.type) {
+    switch (options.type) {
         /**
          * 当前账户在其它端同步更新好友昵称
          */
@@ -168,21 +164,21 @@ function onSyncFriendAction(options) {
  */
 function fetchUserInfo(account) {
     nim.getUser({
-      account,
-      sync: true,
-      done: function (err, user) {
-        if (err) {
-          console.error("获取用户信息失败", err);
-        } else {
-          store.userProfiles[user.account] = user;
-        }
-      },
+        account,
+        sync: true,
+        done: function (err, user) {
+            if (err) {
+                console.error("获取用户信息失败", err);
+            } else {
+                store.userProfiles[user.account] = user;
+            }
+        },
     });
-  }
-  
+}
+
 
 function onsysmsg(options) {
-    switch(options.type) {
+    switch (options.type) {
         /**
          * 收到其他人添加自己为好友的系统通知
          */

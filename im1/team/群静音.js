@@ -61,7 +61,7 @@ function canISendText(tid) {
     }
 
     // 当前账户在群内未被禁言
-    return myInfoInTeam.mute === false || myInfoInTeam.mute === '0'
+    return myInfoInTeam.mute === false
 }
 
 /**
