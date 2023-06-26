@@ -49,18 +49,6 @@ const store = {
      *  value.value: 用户信息
      */
     teamMembers: {},
-    /**
-     * 超级群信息
-     */
-    superTeams: {},
-    /**
-     * 我在各个超级群内的信息。比如自己是否设置了该群免打扰，是否为群主等等
-     */
-    myInfoInEachSuperTeam: {},
-    /**
-     * 超级群成员信息
-     */
-    superTeamMembers: {},
     friendArr: [],
     /**
      * 好友是否上线。请参考: [event/用户上线下线.js]

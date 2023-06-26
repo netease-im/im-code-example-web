@@ -3,8 +3,6 @@
  *
  * - p2p 会话的头像与名称来自于会话的另一个用户
  * - team 群组的头像与名称来自于群组的固有信息
- * - superTeam 超级群与群一样，来自于群的固有信息
- * 
  */
 import store from '../store'
 
@@ -16,10 +14,8 @@ nim = NIM.getInstance({
   debug: true,
   onupdateuser: onupdateuser,
   onUpdateTeam: onUpdateTeam,
-  onUpdateSuperTeam: onUpdateSuperTeam,
   onusers: onusers,
   onteams: onteams,
-  onSuperTeams: onSuperTeams,
   /**
    * 注意，会话更新时，需要拉取会话的基本信息。
    */
@@ -56,23 +52,6 @@ function onUpdateTeam(team) {
 }
 
 /**
- * 超级群消息更新。该回调函数的 team 仅包含更新的内容，所以要和已有的信息合并。
- */
-function onUpdateSuperTeam(team) {
-  const tId = team.teamId;
-  if (!store.superTeams[tId]) {
-    // 本地不存在该群的信息
-    fetchSuperTeamInfo(tId);
-  } else {
-    // 更新信息和已有信息合并
-    store.superTeams[tId] = {
-      ...store.superTeams[tId],
-      ...team,
-    };
-  }
-}
-
-/**
  * 初始化阶段，同步好友信息
  * user中包含:
  * - account: 用户名称
@@ -97,17 +76,6 @@ function onteams(teams) {
   }
 }
 
-/**
- * 初始化阶段，同步超级群信息
- * superTeam中包含:
- * - name: 群名称
- * - avatar：群头像
- */
-function onSuperTeams(teams) {
-  for (const t of teams) {
-    store.superTeams[t.teamId] = t;
-  }
-}
 
 /**
  * 初始化同步获取会话列表后，更新会话对应的用户信息
@@ -145,7 +113,7 @@ function onupdatesessions(sessions) {
  *
  * 注意，该函数不是 NIM.getInstance 的回调函数。该函数应该在 onsessions, onupdatesessions 之后调用。
  * 
- * 它的作用是在会话有更新后，根据会话的类型(p2p, team, superTeam)，拉取会话的基本信息（头像、昵称）
+ * 它的作用是在会话有更新后，根据会话的类型(p2p, team)，拉取会话的基本信息（头像、昵称）
  */
 function updateSessionInfo(session) {
   if (session.scene === "p2p") {
@@ -155,10 +123,6 @@ function updateSessionInfo(session) {
   } else if (session.scene === "team") {
     if (!store.teams[session.to]) {
       fetchTeamInfo(session.to);
-    }
-  } else if (session.scene === "superTeam") {
-    if (!store.superTeams[session.to]) {
-      fetchSuperTeamInfo(session.to);
     }
   }
 }
@@ -197,22 +161,6 @@ function fetchTeamInfo(teamId) {
   });
 }
 
-/**
- * 获取超级群会话对应的 superTeam 信息。
- */
-function fetchSuperTeamInfo(teamId) {
-  nim.getSuperTeam({
-    teamId,
-    sync: true,
-    done: function (err, team) {
-      if (err) {
-        console.error("获取超级群信息失败", err);
-      } else {
-        store.superTeams[team.teamId] = team;
-      }
-    },
-  });
-}
 
 
 
@@ -240,11 +188,6 @@ class SessionList extends React.Component {
         const team = store.teams[session.to];
         team = team.name;
         avatar = team.avatar || "default_image_url";
-        break;
-      case "superTeam":
-        const superTeam = store.superTeams[session.to];
-        name = superTeam.name;
-        avatar = superTeam.avatar || "default_image_url";
         break;
       default:
         break;

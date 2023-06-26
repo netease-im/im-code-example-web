@@ -12,7 +12,7 @@
  *  - 设置 muteNotiType 为 “1”时，群消息不会推送给用户
  *  - 设置 muteNotiType 为 “2”时，非管理员的群消息不会推送给用户
  *  - 用户 UI 层根据当前用户在群内的 muteNotiType 属性决定是否显示未读数
- *  - muteNotiType 可以通过 onMyTeamMembers， onMySuperTeamMembers 维护群成员静音属性
+ *  - muteNotiType 可以通过 onMyTeamMembers 维护群成员静音属性
  */
 
 import store from '../store'
@@ -27,8 +27,7 @@ nim = NIM.getInstance({
     /**
      * 初始化；账号多端同步更新时，触发此回调。根据此回调维护账户在每个群内的设置
      */
-    onMyTeamMembers: onMyTeamMembers,
-    onMySuperTeamMembers: onMySuperTeamMembers
+    onMyTeamMembers: onMyTeamMembers
 })
 
 
@@ -134,20 +133,3 @@ function onMyTeamMembers(data) {
     }
 }
 
-/**
- * 初始化、多端同步自己在各个群中的设置。根据 store.myInfoInEachSuperTeam[teamId].muteNotiType 判断当前用户是否对 teamId 开启免打扰
- */
-function onMySuperTeamMembers(data) {
-    for (const member of data) {
-        store.myInfoInEachSuperTeam[member.teamId] = member
-
-        const superTeamMembers = store.superTeamMembers[member.teamId]
-        if (superTeamMembers) {
-            for (let i = 0; i < superTeamMembers.length; i++) {
-                if (superTeamMembers[i].account === member.account) {
-                    superTeamMembers[i] = member
-                }
-            }
-        }
-    }
-}
