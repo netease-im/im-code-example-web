@@ -116,7 +116,7 @@ function onSuperTeams(teams) {
  */
 function onsessions(sessions) {
   /**
-   * 参考【会话排序.js】。这里应该先排序，再获取会话的用户信息
+   * 参考[会话排序.js]。这里应该先排序，再获取会话的用户信息
    */
 
   /**

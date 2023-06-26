@@ -52,7 +52,7 @@ function onsessions(sessionArr) {
 function onStickTopSessions(sessionArr) {
   for (let session of sessionArr) {
     /**
-     * TODO: 这里有些问题哦，如果onsessions同步的会话不全的话，初始化时都没办法同步干净了。
+     * TODO: 这里有些问题哦，如果 onsessions 同步的会话不全的话，初始化时都没办法同步干净了。
      */
     store.sessionMap[session.id] = store.sessionMap[session.id] || {}
     store.sessionMap[session.id] = {

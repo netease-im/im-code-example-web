@@ -36,7 +36,9 @@ const store = {
      */
     myProfile: {},
     /**
-     * 我在各个群内的信息。比如自己是否设置了该群免打扰，是否为群主等等
+     * 我在各个群内的信息。比如自己是否设置了该群免打扰，是否为群主等等。
+     * 
+     * 这个数据的维护请参考: [team/我在群内信息.js]
      */
     myInfoInEachTeam: {},
     /**
@@ -60,8 +62,18 @@ const store = {
      */
     superTeamMembers: {},
     friendArr: [],
+    /**
+     * 好友是否上线。请参考: [event/用户上线下线.js]
+     */
     friendsOnlineStatus: {},
+    /**
+     * 静音列表。请参考: [session/会话免打扰.js]
+     */
     muteList: [],
+    /**
+     * 黑名单列表。请参考: [user/黑名单.js]
+     */
+    blackList: [],
     /**
      * key: `${msg.from}-${msgCommonType}-${msg.to}`
      * msgCommonType: 好友相关的系统通知的 msgCommonType 为 friendRequest。其它系统通知的 msgCommonType 为 msg.type

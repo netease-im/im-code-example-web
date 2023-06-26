@@ -3,10 +3,16 @@
  * 2. 用户发送消息时，在回调函数中将消息加入列表。收到消息时，通过 onmsg 将消息加入消息列表。
  * 3. 撤回消息，或者删除消息对消息列表的影响请参考 message 文件夹下对应的示例代码
  * 4. 用户向上加载会话内容时，通过 loadMoreMsgOfSession 将更多的消息加载到消息列表中
+ * 
+ * 发送消息时，需要先插入消息。后面在 done 回调覆盖之前插入的消息
  */
 
 import store from '../store'
 
+
+/**
+ * 没有数据库时，根据离线消息/漫游消息获取初始化消息列表
+ */
 nim = NIM.getInstance({
     appKey: "YOUR_APPKEY",
     account: "YOUR_ACCOUNT",
@@ -21,21 +27,26 @@ nim = NIM.getInstance({
 })
 
 /**
- * 发送消息时，将消息加入队列中
+ * 发送消息时，将消息加入队列中。消息发送成功后，再根据 idClient 更新队列
  * 
  * 注意，这里仅展示发送文本消息。其他类型的消息也是同样的处理
  */
 function sendText(scene, to, text) {
-    nim.sendText({
+    const msg = nim.sendText({
         scene,
         to,
         text,
         done: function (err, data) {
             if (!err) {
-                addMsgToMsgArr(data)
+                // 将发送完成的消息插入队列。
+                // addMsgToMsgArr 会用新消息覆盖旧消息
+                updateMsgInMsgArr(data)
             }
         }
     })
+
+    // 将正在发送中的消息插入队列
+    addMsgToMsgArr(msg)
 }
 
 /**
@@ -45,14 +56,32 @@ function onmsg(msg) {
     addMsgToMsgArr(msg)
 }
 
-function addMsgToMsgArr(data) {
-    const sessionId = data.sessionId
+function addMsgToMsgArr(msg) {
+    const sessionId = msg.sessionId
     store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {
         msgArr: [],
         fetching: false,
         complete: false
     }
-    store.sessionMsgs[sessionId].msgArr.unshift(data)
+
+    // 点击发送消息后，消息传入 消息队列的 头部
+    store.sessionMsgs[sessionId].msgArr.unshift(msg)
+}
+
+/**
+ * 消息发送完成后，将新的消息替换队列中的消息
+ */
+function updateMsgInMsgArr(msg) {
+    const sessionId = msg.sessionId
+
+    if (store.sessionMsgs[sessionId]) {
+        const msgArr = store.sessionMsgs[sessionId].msgArr
+        for (let i = 0; i < msgArr.length; i++) {
+            if (msgArr[i].idClient = msg.idClient) {
+                msgArr[i] = msg
+            }
+        }
+    }
 }
 
 /**

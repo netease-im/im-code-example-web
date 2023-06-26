@@ -1,12 +1,10 @@
 /**
- * 相关概念：
- * 
- * 1. 静音：群管理员设置其它成员是否静音。设置静音后，其它成员无法在群内发言
- * 2. 提醒策略/免打扰：是否接收群消息的提醒。updateInfoInTeam -> muteNotiType。免打扰有两层作用
- *  - 影响是否推送消息提醒
- *  - 业务层根据该字段，决定是否展示，如何展示消息提醒 UI
- * 
- * 免打扰的数据维护请参考 session/会话免打扰.js
+ * 注意，静音有一些相互容易混淆的概念，下面做一些额外的说明：
+ * 1. 群静音：群管理员设置群内所有成员能否发言。适用于会议主持场景 (muteTeamAll)
+ * 2. 群成员静音：设置个别群成员能否发言。适用于关闭个别成员发言群里 (updateMuteStateInTeam)
+ * 3. 群消息免打扰：设置当前用户是否接收群消息推送，以及UI上可以根据这个设置决定是否显示消息提醒。请参考 [session/会话免打扰.js]
+ * 4. p2p黑名单：设置两两之间关系黑名单。设置后，被拉黑用户无法发送消息给你
+ * 5. p2p静音：类似于群消息免打扰。设置后，另一个用户可以发送消息，但是不会触发消息推送，且业务层可以根据这个状态，决定是否设置消息提醒。请参考 [session/会话免打扰.js]
  * 
  * 
  * 如何判断是否静音：
@@ -14,8 +12,8 @@
  *  - muteType 为 'all'，禁言的对象是包含群主和管理员的所有成员
  *  - muteType 为 'normal', 禁言的对象是除了群主和管理员的所有成员
  * - 如果群未被禁言，则根据个人的禁言状态决定是否禁言, store.teamMembers
- *  - mute 为 true，或者"1", 则当前对象被禁言
- *  - mute 为 false，或者"0"，则当前对象未被禁言
+ *  - mute 为 true, 则当前对象被禁言
+ *  - mute 为 false，则当前对象未被禁言
  * 
  * 
  * UI建议：
@@ -30,7 +28,13 @@ nim = NIM.getInstance({
     account: "YOUR_ACCOUNT",
     token: "YOUR_TOKEN",
     debug: true,
+    /**
+     * 群静音时收到此回调
+     */
     onUpdateTeam: onUpdateTeam,
+    /**
+     * 群成员静音时收到此回调
+     */
     onUpdateTeamMembersMute: onUpdateTeamMembersMute
 })
 
@@ -52,7 +56,7 @@ function canISendText(tid) {
              * 所有群成员被禁言
              */
             return false
-        } else if (teamInfo.muteTeam === 'normal' && myInfoInTeam.type === '0') {
+        } else if (teamInfo.muteTeam === 'normal' && myInfoInTeam.type === "normal") {
             /**
              * 普通成员被禁言。当前账户是普通群成员
              */

@@ -41,9 +41,9 @@
  * - 2. 一般来说，完成步骤一后，db中系统通知会维持在一个比较合理的量。当然，您也可以接收在线系统通知后，动态的调整系统通知的数量
  * 
  * 
- * 根据上面的讨论，我们创建 store.sysMsgs 数据。该数据为一个 object。相似的系统通知会拥有相同的 key，使其满足【规则五】
- * 在UI层面，applyFriend, applyTeam, teamInvite 提供两个按钮，同意或者拒绝。【规则二】
- * 用户点击系统通知后，调用 markSysMsgRead 设置通知为已读。根据通知的 state !== 'init' && read === false，判断系统消息是否未读【规则四】
+ * 根据上面的讨论，我们创建 store.sysMsgs 数据。该数据为一个 object。相似的系统通知会拥有相同的 key，使其满足[规则五]
+ * 在UI层面，applyFriend, applyTeam, teamInvite 提供两个按钮，同意或者拒绝。[规则二]
+ * 用户点击系统通知后，调用 markSysMsgRead 设置通知为已读。根据通知的 state !== 'init' && read === false，判断系统消息是否未读[规则四]
  */
 import store from '../store'
 

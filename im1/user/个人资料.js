@@ -36,7 +36,7 @@ function onupdatemyinfo(profile) {
 function updateMyInfo(partialProfile) {
     nim.updateMyInfo({
         ...partialProfile,
-        done: function(err, profile) {
+        done: function (err, profile) {
             if (!err) {
                 store.myProfile = profile
             }
@@ -45,3 +45,19 @@ function updateMyInfo(partialProfile) {
 }
 
 
+/**
+ * 设置用户头像：先使用 previewFile 上传头像，然后将 avatar 设置为用户头像
+ */
+function setMyAvatar() {
+    nim.previewFile({
+        type: "image",
+        fileInput: "preview-file",
+        done: function (err, data) {
+            if (!err) {
+                updateMyInfo({
+                    avatar: data.url
+                })
+            }
+        }
+    })
+}

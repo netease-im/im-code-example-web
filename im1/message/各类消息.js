@@ -1,4 +1,10 @@
 /**
+ * 发送消息，如何将发送中消息插入队列，如何在消息发送成功，或者失败后更新队列中元素，请参考：[message/消息队列维护.js]
+ * 
+ * 发送文件时，如何显示文件上传进度，请参考该文件的 sendFile 函数
+ */
+
+/**
  * 01. 发送文本消息
  */
 nim.sendText({
@@ -93,19 +99,47 @@ nim.sendCustomMsg({
    }
 })
 
+
 /**
  * 05. 发送文件
  */
-nim.sendFile({
-   scene: 'p2p',
-   to: 'account',
-   type: 'image',
-   fileInput: 'domId',
-   done: function (err, msg) {
-      if (err) {
-         console.log('发送失败', err)
-      } else {
-         console.log('发送消息成功，消息为: ', msg)
+function sendFile() {
+   const fileMsg = nim.sendFile({
+      scene: 'p2p',
+      to: 'account',
+      type: 'image',
+      fileInput: 'domId',
+      uploadprogress: function (data) {
+         fileMsg.payload = {
+            progress: data.percentage,
+            uploadDone: false
+         }
+      },
+      uploaddone: function (err, data) {
+         if (!err) {
+            fileMsg.payload = {
+               progress: 100,
+               uploadDone: true,
+               url: data.url
+            }
+         }
+      },
+      done: function (err, msg) {
+         if (err) {
+            console.log('发送失败', err)
+         } else {
+            console.log('发送消息成功，消息为: ', msg)
+         }
+         // 请参考 [message/消息队列维护.js]
+         updateMsgInMsgArr(fileMsg)
       }
+   })
+
+   fileMsg.payload = {
+      progress: 0,
+      uploadDone: false
    }
-})
+
+   // 请参考 [message/消息队列维护.js]
+   addMsgToMsgArr(fileMsg)
+}

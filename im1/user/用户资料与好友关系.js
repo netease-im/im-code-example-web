@@ -32,8 +32,12 @@ nim = NIM.getInstance({
     onusers: onusers,
     onupdateuser: onupdateuser,
     onsysmsg: onsysmsg,
-    onSyncFriendAction: onSyncFriendAction
+    onsyncfriendaction: onsyncfriendaction
 })
+
+function onfriends(data) {
+    store.friendArr = data.filter(item => item.valid).map(data => data.account)
+}
 
 /**
  * 初始化阶段收到好友用户资料的回调函数
@@ -74,10 +78,7 @@ function addFriend(account) {
         account,
         done: function (err, data) {
             if (!err) {
-                store.userProfiles[data.account] = data.friend
-                if (!store.friendArr.includes(data.account)) {
-                    store.friendArr.push(data.account)
-                }
+                handleAddFriend(data.friend)
             }
         }
     })
@@ -91,10 +92,7 @@ function deleteFriend(account) {
         account,
         done: function (err, data) {
             if (!err) {
-                const idx = store.friendArr.indexOf(account)
-                if (idx !== -1) {
-                    store.friendArr.splice(idx)
-                }
+                handleDeleteFriend(account)
             }
         }
     })
@@ -111,10 +109,7 @@ function passFriendApply(account, idServer) {
         idServer: idServer,
         done: function (err, data) {
             if (!err) {
-                store.userProfiles[data.account] = data.friend
-                if (!store.friendArr.includes(data.account)) {
-                    store.friendArr.push(data.account)
-                }
+                handleAddFriend(data.friend)
             }
         }
     })
@@ -123,7 +118,7 @@ function passFriendApply(account, idServer) {
 /**
  * 收到多端同步通知
  */
-function onSyncFriendAction(options) {
+function onsyncfriendaction(options) {
     const friend = options.friend
     const account = options.account
 
@@ -142,19 +137,13 @@ function onSyncFriendAction(options) {
          * 当前账户在其它端同意好友申请
          */
         case 'passFriendApply':
-            store.userProfiles[account] = friend
-            if (!store.friendArr.includes(account)) {
-                store.friendArr.push(account)
-            }
+            handleAddFriend(friend)
             break
         /**
          * 当前客户在其它端删除好友
          */
         case 'deleteFriend':
-            const idx = store.friendArr.indexOf(account)
-            if (idx !== -1) {
-                store.friendArr.splice(idx)
-            }
+            handleDeleteFriend(account)
             break
     }
 }
@@ -187,20 +176,13 @@ function onsysmsg(options) {
          * 通过好友申请
          */
         case 'passFriendApply':
-            const friend = options.friend
-            store.userProfiles[friend.account] = friend
-            if (!store.friendArr.includes(friend.account)) {
-                store.friendArr.push(friend.account)
-            }
+            handleAddFriend(options.friend)
             break
         /**
          * 被另一端删除
          */
         case 'deleteFriend':
-            const idx = store.friendArr.indexOf(options.from)
-            if (idx !== -1) {
-                store.friendArr.splice(idx)
-            }
+            handleDeleteFriend(options.from)
             break
         case 'applyFriend':
             /**
@@ -211,5 +193,19 @@ function onsysmsg(options) {
                 fetchUserInfo(options.from)
             }
             break
+    }
+}
+
+function handleDeleteFriend(account) {
+    const idx = store.friendArr.indexOf(account)
+    if (idx !== -1) {
+        store.friendArr.splice(idx)
+    }
+}
+
+function handleAddFriend(friendProfile) {
+    store.userProfiles[friendProfile.account] = friendProfile
+    if (!store.friendArr.includes(friendProfile.account)) {
+        store.friendArr.push(friendProfile.account)
     }
 }
