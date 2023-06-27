@@ -70,7 +70,7 @@ nim = NIM.getInstance({
     account: "YOUR_ACCOUNT",
     token: "YOUR_TOKEN",
     db: true,
-    onconnect: onconnect,
+    onsyncdone: onsyncdone,
     /**
      * 即使开了 db，也需要监听 offlinesysmsgs。因为直接从 数据库读时，可能会有一些离线的系统通知还未入库
      */
@@ -85,7 +85,7 @@ nim = NIM.getInstance({
  * 
  * 关联函数请参考 sysmsg/本地系统通知数量管理.js
  */
-async function onconnect() {
+async function onsyncdone() {
     const res = await getLocalSysMsgs(SYSMSG_COUNT_TO_KEEP)
     if (res.hasMore) {
         removeLocalSysMsgsBefore(res.lastIdServer)

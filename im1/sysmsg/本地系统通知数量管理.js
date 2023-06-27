@@ -12,7 +12,7 @@ nim = NIM.getInstance({
     account: "YOUR_ACCOUNT",
     token: "YOUR_TOKEN",
     db: true,
-    onconnect
+    onsyncdone
 })
 
 /**
@@ -20,7 +20,7 @@ nim = NIM.getInstance({
  * 1. 获取最近 N 条系统消息，并作为本次应用的系统消息队列中的内容
  * 2. 这 N 条之外的消息要从数据库中移除，以保持数据库大小可控
  */
-async function onconnect() {
+async function onsyncdone() {
     const res = await getLocalSysMsgs(100)
     console.log('getLocalSysMsgs', res)
 
