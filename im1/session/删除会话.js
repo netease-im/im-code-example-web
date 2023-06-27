@@ -4,6 +4,10 @@
  * 1. 删除后，之前的会话内容无法通过漫游消息、历史消息等接口查询到。
  * 2. store 中，和该会话有关联的内容需要删除
  * 3. 多端同步时，其他端也要删除该会话内容(可以根据你的业务场景自行选择)
+ * 
+ * clearServerHistoryMsgsWithSync 会删除服务器漫游消息，历史消息，以及本地数据库中的消息。本地数据库中的会话记录你可以根据业务场景选择是否删除。
+ * 
+ * 多端同步收到清空服务器历史消息时，也会删除本地数据库中对应的消息。
  */
 
 
@@ -57,20 +61,6 @@ function deleteSession(session, isSyncSelf) {
                  * 从 store 中，将会话相关记录删除
                  */
                 removeSessionFromStore(session.id)
-
-                /**
-                 * 从 数据库中，将该会话有关系的消息记录全部删除
-                 */
-                nim.deleteLocalMsgsBySession({
-                    delLastMsg: true,
-                    scene: scene,
-                    to: to,
-                    done: function (err) {
-                        if (err) {
-                            console.error('删除本地会话的消息记录失败')
-                        }
-                    }
-                })
             }
         }
     })

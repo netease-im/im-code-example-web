@@ -77,8 +77,9 @@ function updateMsgInMsgArr(msg) {
     if (store.sessionMsgs[sessionId]) {
         const msgArr = store.sessionMsgs[sessionId].msgArr
         for (let i = 0; i < msgArr.length; i++) {
-            if (msgArr[i].idClient = msg.idClient) {
+            if (msgArr[i].idClient === msg.idClient) {
                 msgArr[i] = msg
+                break
             }
         }
     }
