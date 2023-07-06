@@ -51,18 +51,26 @@ input.onblur = () => {
 //********* 接收方收到 USER_CANCEL_TYPE，清空提示 *****************
 //********* 接收方收到 USER_IS_TYPING 后间隔10s无消息，清空提示 ****
 //**************************************************************
+NIM.getInstance({
+    appKey: "YOUR_APPKEY",
+    account: "YOUR_ACCOUNT",
+    token: "YOUR_TOKEN",
+    debug: true,
+    oncustomsysmsg: oncustomsysmsg
+})
+
 let timer
-function onCustomSysMsg(sysMsg) {
-    if (sysMsg.content && sysMsg.content) {
+function oncustomsysmsg(sysMsg) {
+    if (sysMsg && sysMsg.content) {
         try {
             const content = JSON.parse(sysMsg.content)
-            if (content && content.editing === true) {
+            if (content && content.type === 'USER_IS_TYPING') {
                 clearTimeout(timer)
                 setEditHint()
                 setTimeout(() => {
                     unsetEditHint();
                 }, 10000)
-            } else if (content && content.editing === false) {
+            } else if (content && content.type === 'USER_CANCEL_TYPE') {
                 clearTimeout(timer)
                 unsetEditHint();
             }

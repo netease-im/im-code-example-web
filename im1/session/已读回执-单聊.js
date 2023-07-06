@@ -53,7 +53,7 @@ function onupdatesessions(sessionArr) {
     store.orderedSessions = getOrderedSessions(store.sessionMap)
 
     /**
-     * 标记群聊中每条消息的已读回执是否收到
+     * 标记会话中每条消息的已读回执是否收到
      */
     if (session.scene === 'p2p') {
         markMsgReceived(session)

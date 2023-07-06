@@ -38,6 +38,9 @@ function sendText(teamId, text) {
         scene: 'team',
         to: teamId,
         text,
+        /**
+         * 必须要设置 needMsgReceipt才能够接收群消息的已读回执
+         */
         needMsgReceipt: true,
         done: function (err, data) {
             debugger

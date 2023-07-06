@@ -54,25 +54,26 @@ function ondisconnect(res) {
       store.uistate.networkHint = "账号禁止登录";
     } else if (res.code === 422) {
       store.uistate.networkHint = "账号被禁用";
+    } else if (res.code === 417) {
+      store.uistate.networkHint = "重复登录, 已经在其它端登录了";
     } else {
       store.uistate.networkHint = "账号无法登录";
     }
   } else if (res.code === "kicked") {
-    store.uistate.networkHint = "账号已被踢出";
+    if (res.reason === 'samePlatformKick' || res.reason === 'otherPlatformKick') {
+      store.uistate.networkHint = '当前账户已在其它设备中登录'
+    } else if (res.reason === 'serverKick') {
+      store.uistate.networkHint = '当前设备已被服务器踢掉'
+    } else {
+      store.uistate.networkHint = '账号已被踢出'
+    }
   } else if (res.code === "allAttemptsFailed") {
     store.uistate.networkHint = "无法连接至服务器";
-  } else if (res.code === "offlineListener") {
-    store.uistate.networkHint = "网络不佳，连接已断开";
   } else if (res.code === "logout") {
     store.uistate.networkHint = "当前账户已登出";
   } else {
     store.uistate.networkHint = "当前账户已登出";
   }
 
-  /**
-   * offlineListener 表示当前网络不佳，sdk 连接断开。当网络恢复后，sdk 会开启重连。这种状态下不需要跳转至登录页面
-   */
-  if (res.code !== "offlineListener") {
-    redirect("loginPage");
-  }
+  redirect("loginPage");
 }
