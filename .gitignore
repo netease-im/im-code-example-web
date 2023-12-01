@@ -1,3 +1,6 @@
 node_modules
 .DS_Store
 debug.js
+config.js
+index.html
+NIM_BROWSER_SDK.js
