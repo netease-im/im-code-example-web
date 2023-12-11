@@ -87,7 +87,6 @@ function sendMsgReceipt(msg) {
  * }>
  */
 function onTeamMsgReceipt(data) {
-    debugger
     for (let entry of data.teamMsgReceipts) {
         const msg = getMsg(entry.teamId, entry.idClient)
         if (msg) {
