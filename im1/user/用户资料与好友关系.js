@@ -199,7 +199,7 @@ function onsysmsg(options) {
 function handleDeleteFriend(account) {
     const idx = store.friendArr.indexOf(account)
     if (idx !== -1) {
-        store.friendArr.splice(idx)
+        store.friendArr.splice(idx, 1)
     }
 }
 

@@ -47,7 +47,6 @@ for (let item of muteList) {
  * 收到多端静音列表变更通知
  */
 function onMuteListUpdate(data) {
-    debugger
     const idx = store.muteList.indexOf(data.account)
     if (data.isAdd) {
         store.muteList.push(data.account)

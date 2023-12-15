@@ -4,7 +4,7 @@
  * 群聊已读回执在初始化阶段并不会自动同步。开发者应该在用户进入对应的消息浏览界面时，调用：
  * 
  * 1. queryMsgReceiveInfoInBatch: 批量查询群聊已读回执简要（拉取多条消息已读数量+被读数量）
- * 2. queryMsgReceiveInfoDetail：用户点击已读回执详情时，调用该函数获取已读用户详细名单
+ * 2. queryMsgReceiveInfoDetail: 用户点击已读回执详情时，调用该函数获取已读用户详细名单
  * 
  * 同时监听：onTeamMsgReceipt。这样能够在有新的消息时，保持已读回执简要的更新
  */
@@ -43,7 +43,6 @@ function sendText(teamId, text) {
          */
         needMsgReceipt: true,
         done: function (err, data) {
-            debugger
             const sessionId = data.sessionId
             store.sessionMsgs[sessionId] = store.sessionMsgs[sessionId] || {
                 msgArr: [],

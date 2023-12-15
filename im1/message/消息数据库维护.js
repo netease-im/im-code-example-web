@@ -12,7 +12,6 @@ function deleteLocalMsgs(sessionId, days) {
         end,
         updateSession: true,
         done: function (err, data) {
-            debugger
             if (!err) {
                 console.log('会话清除成功')
                 start = data.start || 0

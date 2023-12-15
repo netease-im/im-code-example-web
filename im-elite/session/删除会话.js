@@ -75,7 +75,6 @@ function removeSessionFromStore(sessionId) {
 }
 
 function onClearServerHistoryMsgs(dataArr) {
-    debugger
     for (let data of dataArr) {
         const session = store.sessionMsgs[data.sessionId]
 
